@@ -3,7 +3,7 @@
 import time
 import uuid
 import StringIO
-
+import random
 from PIL import Image
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -40,9 +40,7 @@ class BaseGeetestCrack(object):
 
     def calculate_slider_offset(self):
         """计算滑块偏移位置，必须在点击查询按钮之后调用
-
         :returns: Number
-
         """
         img1 = self.crop_captcha_image()
         self.drag_and_drop(x_offset=5)
@@ -53,25 +51,31 @@ class BaseGeetestCrack(object):
             return False
         left = 0
         flag = False
-        for i in xrange(45, w1):
+        move_size = 0
+        for i in xrange(60, w1):
             for j in xrange(h1):
-                if not self.is_pixel_equal(img1, img2, i, j):
-                    left = i
+                if self.is_not_equal_pixel(img1, img2, i, j):
+                    left = j
                     flag = True
                     break
             if flag:
                 break
         if left == 45:
             left -= 2
-        return left
+        for k in xrange(60, w1):
+            if self.is_not_equal_pixel(img1, img2, k, left):
+                move_size = k
+                break
+        return move_size - 6
 
-    def is_pixel_equal(self, img1, img2, x, y):
+    def  is_not_equal_pixel(self, img1, img2, x, y):
         pix1 = img1.load()[x, y]
         pix2 = img2.load()[x, y]
-        if (abs(pix1[0] - pix2[0] < 60) and abs(pix1[1] - pix2[1] < 60) and abs(pix1[2] - pix2[2] < 60)):
-            return True
-        else:
-            return False
+        for i in range(0, 3):
+            # 如果相差超过50则就认为找到了缺口的位置
+            if abs(pix1[i] - pix2[i]) >= 60:
+                return True
+        return False
 
     def crop_captcha_image(self, element_id="gt_box"):
         """截取验证码图片
@@ -121,7 +125,15 @@ class BaseGeetestCrack(object):
         action = ActionChains(self.driver)
         action.drag_and_drop_by_offset(dragger, x_offset, y_offset).perform()
         # 这个延时必须有，在滑动后等待回复原状
-        time.sleep(8)
+        time.sleep(4)
+
+
+    def drag_to_index(self, track, element_class="gt_slider_knob"):
+        dragger = self.driver.find_element_by_class_name(element_class)
+        ActionChains(self.driver).move_to_element_with_offset(to_element=dragger, xoffset=track + 22, yoffset=0).perform()
+        # 这个延时必须有，在滑动后等待回复原状
+        time.sleep(random.randint(10, 50) / 100)
+
 
     def move_to_element(self, element_class="gt_slider_knob"):
         """鼠标移动到网页元素上
