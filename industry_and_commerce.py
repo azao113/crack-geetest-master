@@ -22,19 +22,22 @@ class IndustryAndCommerceGeetestCrack(BaseGeetestCrack):
         x_offset = self.calculate_slider_offset()
         print x_offset
         track_list = get_track(x_offset)
-        # for track in track_list:
-        self.drag_to_index(x_offset)
-        # self.drag_and_drop(x_offset=x_offset)
-
+        for track in track_list:
+            self.drag_to_index(track)
+        self.release_mouse()
+            # self.drag_and_drop(x_offset=track)
+#
 
 # 根据缺口的位置模拟x轴移动的轨迹
 def get_track(length):
     pass
     list = []
+    list.append(1)
+    length = length - 1
     # 间隔通过随机范围函数来获得,每次移动一步或者两步
     x = random.randint(1, 3)
     # 生成轨迹并保存到list内
-    while length - x >= 5:
+    while length - x >= 1:
         list.append(x)
         length = length - x
         x = random.randint(1, 3)
@@ -46,14 +49,16 @@ def get_track(length):
 
 def main():
     driver = webdriver.Chrome()
-    driver.get("http://bj.gsxt.gov.cn/sydq/loginSydqAction!sydq.dhtml")
+    # driver.get("http://bj.gsxt.gov.cn/sydq/loginSydqAction!sydq.dhtml")
+    driver.get("http://www.gsxt.gov.cn/index.html")
     cracker = IndustryAndCommerceGeetestCrack(driver)
     cracker.crack()
     # print(driver.get_window_size())
-    time.sleep(1)
+    time.sleep(10)
     # driver.save_screenshot("screen.png")
     driver.close()
 
 
 if __name__ == "__main__":
-    main()
+    while 1:
+        main()

@@ -16,7 +16,7 @@ class BaseGeetestCrack(object):
         self.driver = driver
         # self.driver.maximize_window()
 
-    def input_by_id(self, text=u"中国移动", element_id="keyword_qycx"):
+    def input_by_id(self, text=u"中国移动", element_id="keyword"):
         """输入查询关键词
 
         :text: Unicode, 要输入的文本
@@ -28,7 +28,7 @@ class BaseGeetestCrack(object):
         input_el.send_keys(text)
         time.sleep(1)
 
-    def click_by_id(self, element_id="popup-submit"):
+    def click_by_id(self, element_id="btn_query"):
         """点击查询按钮
 
         :element_id: 查询按钮网页元素id
@@ -130,10 +130,18 @@ class BaseGeetestCrack(object):
 
     def drag_to_index(self, track, element_class="gt_slider_knob"):
         dragger = self.driver.find_element_by_class_name(element_class)
-        ActionChains(self.driver).move_to_element_with_offset(to_element=dragger, xoffset=track + 22, yoffset=0).perform()
-        # 这个延时必须有，在滑动后等待回复原状
+        action = ActionChains(self.driver)
+        action.click_and_hold(dragger)
+        x = random.randint(0, 1)
+        action.move_by_offset(track, x)
+        action.perform()
         time.sleep(random.randint(10, 50) / 100)
 
+
+    def release_mouse(self, element_class="gt_slider_knob"):
+        element = self.driver.find_element_by_class_name(element_class)
+        action = ActionChains(self.driver)
+        action.release(element).perform()
 
     def move_to_element(self, element_class="gt_slider_knob"):
         """鼠标移动到网页元素上
